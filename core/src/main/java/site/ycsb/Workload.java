@@ -90,7 +90,7 @@ public abstract class Workload {
    * effects other than DB operations and mutations on threadstate. Mutations to threadstate do not need to be
    * synchronized, since each thread has its own threadstate instance.
    */
-  public abstract boolean doInsert(DB db, Object threadstate);
+  public abstract boolean doInsert(GeoDB db, Object threadstate);
 
   /**
    * Do one transaction operation. Because it will be called concurrently from multiple client threads, this
@@ -103,7 +103,7 @@ public abstract class Workload {
    * Return true otherwise. Return true for workloads that rely on operationcount. For workloads that read
    * traces from a file, return true when there are more to do, false when you are done.
    */
-  public abstract boolean doTransaction(DB db, Object threadstate);
+  public abstract boolean doTransaction(GeoDB db, Object threadstate);
 
   /**
    * Allows scheduling a request to stop the workload.

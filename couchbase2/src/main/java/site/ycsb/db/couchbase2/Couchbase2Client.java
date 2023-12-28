@@ -28,6 +28,7 @@ import com.couchbase.client.core.metrics.MetricsCollectorConfig;
 import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonFactory;
 import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonGenerator;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.JsonNode;
+import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectMapper;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.node.ObjectNode;
 import com.couchbase.client.deps.io.netty.channel.DefaultSelectStrategyFactory;
 import com.couchbase.client.deps.io.netty.channel.EventLoopGroup;
@@ -50,11 +51,18 @@ import com.couchbase.client.java.env.CouchbaseEnvironment;
 import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 import com.couchbase.client.java.error.TemporaryFailureException;
 import com.couchbase.client.java.query.*;
+import com.couchbase.client.java.search.SearchQuery;
+import com.couchbase.client.java.search.queries.GeoDistanceQuery;
+import com.couchbase.client.java.search.result.SearchQueryResult;
 import com.couchbase.client.java.transcoder.JacksonTransformers;
 import com.couchbase.client.java.util.Blocking;
+import com.couchbase.client.java.view.SpatialViewQuery;
+import com.couchbase.client.java.view.SpatialViewResult;
+import org.json.JSONObject;
 import site.ycsb.ByteIterator;
 import site.ycsb.DB;
 import site.ycsb.DBException;
+import site.ycsb.GeoDB;
 import site.ycsb.Status;
 import site.ycsb.StringByteIterator;
 import rx.Observable;
@@ -69,6 +77,8 @@ import java.util.*;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
+import site.ycsb.generator.GeoGenerator;
+import site.ycsb.workloads.GeoWorkload;
 
 /**
  * A class that wraps the 2.x Couchbase SDK to be used with YCSB.
@@ -97,7 +107,7 @@ import java.util.concurrent.locks.LockSupport;
  *      Couchbase.</li>
  * </ul>
  */
-public class Couchbase2Client extends DB {
+public class Couchbase2Client extends GeoDB {
 
   static {
     // No need to send the full encoded_plan for this benchmark workload, less network overhead!
@@ -129,6 +139,7 @@ public class Couchbase2Client extends DB {
   private int networkMetricsInterval;
   private int runtimeMetricsInterval;
   private String scanAllQuery;
+  private String geoInsertN1qlQuery;
   private int documentExpiry;
   
   @Override
@@ -155,6 +166,8 @@ public class Couchbase2Client extends DB {
     documentExpiry = Integer.parseInt(props.getProperty("couchbase.documentExpiry", "0"));
     scanAllQuery =  "SELECT RAW meta().id FROM `" + bucketName +
       "` WHERE meta().id >= '$1' ORDER BY meta().id LIMIT $2";
+    geoInsertN1qlQuery = "INSERT INTO `" + bucketName
+        + "`(KEY,VALUE) VALUES ($1,$2)";
 
     try {
       synchronized (INIT_COORDINATOR) {
@@ -895,6 +908,211 @@ public class Couchbase2Client extends DB {
     }
     return writer.toString();
   }
+
+  @Override
+  public Status geoLoad(String table, GeoGenerator generator, Double recordCount) {
+    try {
+      String docId = generator.getIncidentsIdRandom();
+      RawJsonDocument doc = bucket.get(docId, RawJsonDocument.class);
+      if (doc != null) {
+        generator.putIncidentsDocument(docId, doc.content().toString());
+      } else {
+        System.err.println("Error getting document from DB: " + docId);
+      }
+      generator.buildGeoInsertDocument();
+      int inserts = (int) Math.round(recordCount/Integer.parseInt(GeoWorkload.TOTAL_DOCS_DEFAULT))-1;
+      for (double i = inserts; i > 0; i--) {
+        HashMap<String, ByteIterator> cells = new HashMap<String, ByteIterator>();
+        geoInsert(table, cells, generator);
+      }
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return Status.ERROR;
+    }
+    return Status.OK;
+  }
+
+  // *********************  GEO Insert ********************************
+
+  @Override
+  public Status geoInsert(String table, HashMap<String, ByteIterator> result, GeoGenerator gen)  {
+    try {
+      if (kv) {
+        return geoInsertKv(gen);
+      } else {
+        return geoInsertN1ql(gen);
+      }
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return Status.ERROR;
+    }
+  }
+
+  private Status geoInsertKv(GeoGenerator gen) {
+    int tries = 60; // roughly 60 seconds with the 1 second sleep, not 100% accurate.
+    for(int i = 0; i < tries; i++) {
+      try {
+        waitForMutationResponse(bucket.async().insert(
+            RawJsonDocument.create(gen.getGeoPredicate().getDocid(), documentExpiry, gen.getGeoPredicate().getValue()),
+            persistTo,
+            replicateTo
+        ));
+        return Status.OK;
+      } catch (TemporaryFailureException ex) {
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          throw new RuntimeException("Interrupted while sleeping on TMPFAIL backoff.", ex);
+        }
+      }
+    }
+    throw new RuntimeException("Still receiving TMPFAIL from the server after trying " + tries + " times. " +
+        "Check your server.");
+  }
+
+  private Status geoInsertN1ql(GeoGenerator gen)
+      throws Exception {
+
+    N1qlQueryResult queryResult = bucket.query(N1qlQuery.parameterized(
+        geoInsertN1qlQuery,
+        JsonArray.from(gen.getGeoPredicate().getDocid(), JsonObject.fromJson(gen.getGeoPredicate().getValue())),
+        N1qlParams.build().adhoc(adhoc).maxParallelism(maxParallelism)
+    ));
+
+    if (!queryResult.parseSuccess() || !queryResult.finalSuccess()) {
+      throw new DBException("Error while parsing N1QL Result. Query: " + geoInsertN1qlQuery
+          + ", Errors: " + queryResult.errors());
+    }
+    return Status.OK;
+  }
+
+  // *********************  GEO Update ********************************
+
+  @Override
+  public Status geoUpdate(String table, HashMap<String, ByteIterator> result, GeoGenerator gen)  {
+    try {
+      if (kv) {
+        return geoUpdateKv(gen);
+      } else {
+        return geoUpdateN1ql(gen);
+      }
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return Status.ERROR;
+    }
+  }
+
+  private Status geoUpdateKv(GeoGenerator gen)  {
+    waitForMutationResponse(bucket.async().replace(
+        RawJsonDocument.create(gen.getIncidentIdWithDistribution(), documentExpiry,
+            gen.getGeoPredicate().getNestedPredicateA().getValueA().toString()),
+        persistTo,
+        replicateTo
+    ));
+
+    return Status.OK;
+  }
+
+  private Status geoUpdateN1ql(GeoGenerator gen)
+      throws Exception {
+    String updateQuery = "UPDATE `" + bucketName + "` USE KEYS [$1] SET " +
+        gen.getGeoPredicate().getNestedPredicateA().getName() + " = $2";
+
+    N1qlQueryResult queryResult = bucket.query(N1qlQuery.parameterized(
+        updateQuery,
+        JsonArray.from(gen.getIncidentIdWithDistribution(), gen.getGeoPredicate().getNestedPredicateA().getValueA()),
+        N1qlParams.build().adhoc(adhoc).maxParallelism(maxParallelism)
+    ));
+
+    if (!queryResult.parseSuccess() || !queryResult.finalSuccess()) {
+      return Status.ERROR;
+    }
+    return Status.OK;
+  }
+
+  // *********************  GEO Centre Based ********************************
+  @Override
+  public Status geoNear(String table, HashMap<String, ByteIterator> result, GeoGenerator gen) {
+    try {
+      JSONObject nearFieldValue = gen.getGeoPredicate().getNestedPredicateA().getValueA();
+
+      HashMap<String, Object> boxFields = new ObjectMapper().readValue(nearFieldValue.toString(), HashMap.class);
+      ArrayList coords1 = ((ArrayList) boxFields.get("coordinates"));
+
+      GeoDistanceQuery fts = SearchQuery.geoDistance((Double)coords1.get(0), (Double) coords1.get(1), "1000m");
+      SearchQuery query= new SearchQuery("Index", fts);
+
+      SearchQueryResult queryResult = bucket.query(query);
+
+      return queryResult != null ? Status.OK : Status.NOT_FOUND;
+    } catch (Exception e) {
+      System.err.println(e);
+      return Status.ERROR;
+    }
+  }
+
+  // *********************  GEO Box Based ********************************
+  @Override
+  public Status geoBox(String table, HashMap<String, ByteIterator> result, GeoGenerator gen) {
+    try {
+      JSONObject boxFieldValue1 = gen.getGeoPredicate().getNestedPredicateA().getValueA();
+      JSONObject boxFieldValue2 = gen.getGeoPredicate().getNestedPredicateB().getValueA();
+
+      HashMap<String, Object> boxFields = new ObjectMapper().readValue(boxFieldValue1.toString(), HashMap.class);
+      HashMap<String, Object> boxFields1 = new ObjectMapper().readValue(boxFieldValue2.toString(), HashMap.class);
+      List<Double> rp = new ArrayList<>();
+      List coords = (ArrayList) boxFields.get("coordinates");
+      for(Object element: coords) {
+        rp.add((Double) element);
+      }
+      ArrayList coords2 = ((ArrayList) boxFields1.get("coordinates"));
+      for(Object element: coords2) {
+        rp.add((Double) element);
+      }
+
+      SpatialViewQuery q = SpatialViewQuery.from("dev_spatial", "SpatialView")
+          .startRange(JsonArray.from(rp.get(0), rp.get(1)))
+          .endRange(JsonArray.from(rp.get(2), rp.get(3)));
+      SpatialViewResult queryResult = bucket.query(q);
+      return queryResult != null ? Status.OK : Status.NOT_FOUND;
+    } catch (Exception e) {
+      System.err.println(e);
+      return Status.ERROR;
+    }
+  }
+
+  // *********************  GEO Intersect ********************************
+  @Override
+  public Status geoIntersect(String table, HashMap<String, ByteIterator> result, GeoGenerator gen) {
+    try {
+      String boxFieldName1 = gen.getGeoPredicate().getNestedPredicateA().getName();
+      JSONObject boxFieldValue1 = gen.getGeoPredicate().getNestedPredicateA().getValueA();
+      JSONObject boxFieldValue2 = gen.getGeoPredicate().getNestedPredicateB().getValueA();
+      HashMap<String, Object> boxFields = new ObjectMapper().readValue(boxFieldValue1.toString(), HashMap.class);
+      HashMap<String, Object> boxFields1 = new ObjectMapper().readValue(boxFieldValue2.toString(), HashMap.class);
+      List<Double> rp = new ArrayList<>();
+      List coords = (ArrayList) boxFields.get("coordinates");
+      for (Object element : coords) {
+        rp.add((Double) element);
+      }
+      ArrayList coords2 = ((ArrayList) boxFields1.get("coordinates"));
+      for (Object element : coords2) {
+        rp.add((Double) element);
+      }
+
+      SpatialViewQuery q = SpatialViewQuery.from("dev_spatial", "SpatialView")
+          .startRange(JsonArray.from(rp.get(0), rp.get(1)))
+          .endRange(JsonArray.from(rp.get(2), rp.get(3)));
+      SpatialViewResult queryResult = bucket.query(q);
+
+      return queryResult != null ? Status.OK : Status.NOT_FOUND;
+    } catch (Exception e) {
+      System.err.println(e);
+      return Status.ERROR;
+    }
+  }
+
+  // ************************************************************************************************
 }
 
 /**

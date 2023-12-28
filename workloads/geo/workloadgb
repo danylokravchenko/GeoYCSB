@@ -1,0 +1,34 @@
+
+recordcount=1000
+operationcount=100000
+requestdistribution=uniform
+readallfields=true
+readproportion=0
+updateproportion=0
+scanproportion=0
+insertproportion=0
+
+
+workload=com.yahoo.ycsb.workloads.geo.GeoWorkload
+
+
+# Workload settings for geo
+
+geo_insert=0.20
+geo_update=0
+geo_near=0
+geo_box=0.80
+geo_intersect=0
+geo_scan=0
+
+# zipfian, uniform
+geo_request_distribution=uniform
+
+geo_storage_host=localhost
+geo_storage_port=11211
+
+geo_querylimit_min = 10
+geo_querylimit_max = 10
+
+geo_offset_min = 10
+geo_offset_max = 10

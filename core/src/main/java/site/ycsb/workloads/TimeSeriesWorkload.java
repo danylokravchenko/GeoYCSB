@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import site.ycsb.ByteIterator;
 import site.ycsb.Client;
 import site.ycsb.DB;
+import site.ycsb.GeoDB;
 import site.ycsb.NumericByteIterator;
 import site.ycsb.Status;
 import site.ycsb.StringByteIterator;
@@ -694,7 +695,7 @@ public class TimeSeriesWorkload extends Workload {
   }
   
   @Override
-  public boolean doInsert(DB db, Object threadstate) {
+  public boolean doInsert(GeoDB db, Object threadstate) {
     if (threadstate == null) {
       throw new IllegalStateException("Missing thread state.");
     }
@@ -707,7 +708,7 @@ public class TimeSeriesWorkload extends Workload {
   }
 
   @Override
-  public boolean doTransaction(DB db, Object threadstate) {
+  public boolean doTransaction(GeoDB db, Object threadstate) {
     if (threadstate == null) {
       throw new IllegalStateException("Missing thread state.");
     }
@@ -733,7 +734,7 @@ public class TimeSeriesWorkload extends Workload {
     return true;
   }
 
-  protected void doTransactionRead(final DB db, Object threadstate) {
+  protected void doTransactionRead(final GeoDB db, Object threadstate) {
     final ThreadState state = (ThreadState) threadstate;
     final String keyname = keys[keychooser.nextValue().intValue()];
     final Random random = ThreadLocalRandom.current();
@@ -783,7 +784,7 @@ public class TimeSeriesWorkload extends Workload {
     }
   }
   
-  protected void doTransactionUpdate(final DB db, Object threadstate) {
+  protected void doTransactionUpdate(final GeoDB db, Object threadstate) {
     if (threadstate == null) {
       throw new IllegalStateException("Missing thread state.");
     }
@@ -792,11 +793,11 @@ public class TimeSeriesWorkload extends Workload {
     db.update(table, key, tags);
   }
   
-  protected void doTransactionInsert(final DB db, Object threadstate) {
+  protected void doTransactionInsert(final GeoDB db, Object threadstate) {
     doInsert(db, threadstate);
   }
   
-  protected void doTransactionScan(final DB db, Object threadstate) {
+  protected void doTransactionScan(final GeoDB db, Object threadstate) {
     final ThreadState state = (ThreadState) threadstate;
     final Random random = ThreadLocalRandom.current();
     final String keyname = keys[random.nextInt(keys.length)];
@@ -845,7 +846,7 @@ public class TimeSeriesWorkload extends Workload {
     db.scan(table, keyname, len, fields, results);
   }
   
-  protected void doTransactionDelete(final DB db, Object threadstate) {
+  protected void doTransactionDelete(final GeoDB db, Object threadstate) {
     final ThreadState state = (ThreadState) threadstate;
     final Random random = ThreadLocalRandom.current();
     final StringBuilder buf = new StringBuilder().append(keys[random.nextInt(keys.length)]);

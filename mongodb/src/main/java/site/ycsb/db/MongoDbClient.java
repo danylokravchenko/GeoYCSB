@@ -24,6 +24,9 @@
  */
 package site.ycsb.db;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.ReadPreference;
@@ -32,15 +35,20 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.InsertManyOptions;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import com.mongodb.util.JSON;
+import java.util.Random;
+import org.json.JSONObject;
 import site.ycsb.ByteArrayByteIterator;
 import site.ycsb.ByteIterator;
 import site.ycsb.DB;
 import site.ycsb.DBException;
+import site.ycsb.GeoDB;
 import site.ycsb.Status;
 
 import org.bson.Document;
@@ -54,6 +62,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
+import site.ycsb.StringByteIterator;
+import site.ycsb.generator.GeoGenerator;
+import site.ycsb.workloads.GeoWorkload;
 
 /**
  * MongoDB binding for YCSB framework using the MongoDB Inc. <a
@@ -66,7 +77,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see <a href="http://docs.mongodb.org/ecosystem/drivers/java/">MongoDB Inc.
  *      driver</a>
  */
-public class MongoDbClient extends DB {
+public class MongoDbClient extends GeoDB {
 
   /** Used to include a field in a response. */
   private static final Integer INCLUDE = Integer.valueOf(1);
@@ -466,6 +477,276 @@ public class MongoDbClient extends DB {
         resultMap.put(entry.getKey(),
             new ByteArrayByteIterator(((Binary) entry.getValue()).getData()));
       }
+    }
+  }
+
+     /*
+       ================    GEO operations  ======================
+   */
+
+  @Override
+  public Status geoLoad(String table, GeoGenerator generator, Double recordCount) {
+
+    try {
+      String key = generator.getIncidentsIdRandom();
+      MongoCollection<Document> collection = database.getCollection(table);
+      Random rand = new Random();
+      int objId = rand.nextInt((Integer.parseInt(GeoWorkload.TOTAL_DOCS_DEFAULT) -
+          Integer.parseInt(GeoWorkload.DOCS_START_VALUE)) + 1)+Integer.parseInt(GeoWorkload.DOCS_START_VALUE);
+      Document query = new Document("properties.OBJECTID", objId);
+      FindIterable<Document> findIterable = collection.find(query);
+      Document queryResult = findIterable.first();
+      if (queryResult == null) {
+        System.out.println(table+" ++++ "+collection);
+        System.out.println(query);
+        System.out.println("Empty return");
+        return Status.OK;
+      }
+
+      generator.putIncidentsDocument(key, queryResult.toJson());
+      System.out.println("Key : " + key + " Query Result :" + queryResult.toJson());
+      generator.buildGeoInsertDocument();
+      int inserts = (int) Math.round(recordCount/Integer.parseInt(GeoWorkload.TOTAL_DOCS_DEFAULT))-1;
+      for (double i = inserts; i > 0; i--) {
+        HashMap<String, ByteIterator> cells = new HashMap<>();
+        geoInsert(table, cells, generator);
+      }
+      return Status.OK;
+    } catch (Exception e) {
+      System.err.println(e.toString());
+    }
+    return Status.ERROR;
+  }
+
+  // *********************  GEO Insert ********************************
+
+  @Override
+  public Status geoInsert(String table, HashMap<String, ByteIterator> result, GeoGenerator gen)  {
+
+    try {
+      MongoCollection<Document> collection = database.getCollection(table);
+      String key = gen.getGeoPredicate().getDocid();
+      String value = gen.getGeoPredicate().getValue();
+      Document toInsert = new Document("OBJECTID", key);
+      DBObject body = (DBObject) JSON.parse(value);
+      toInsert.put(key, body);
+      collection.insertOne(toInsert);
+
+      return Status.OK;
+    } catch (Exception e) {
+      System.err.println("Exception while trying bulk insert with "
+          + bulkInserts.size());
+      e.printStackTrace();
+      return Status.ERROR;
+    }
+  }
+
+  // *********************  GEO Update ********************************
+
+  @Override
+  public Status geoUpdate(String table, HashMap<String, ByteIterator> result, GeoGenerator gen) {
+    try {
+      MongoCollection<Document> collection = database.getCollection( table );
+      Random rand = new Random();
+      int key = rand.nextInt( (Integer.parseInt( GeoWorkload.TOTAL_DOCS_DEFAULT ) -
+          Integer.parseInt( GeoWorkload.DOCS_START_VALUE )) + 1 ) + Integer.parseInt( GeoWorkload.DOCS_START_VALUE );
+      String updateFieldName = gen.getGeoPredicate().getNestedPredicateA().getName();
+      JSONObject updateFieldValue = gen.getGeoPredicate().getNestedPredicateA().getValueA();
+
+      HashMap<String, Object> updateFields = new ObjectMapper().readValue( updateFieldValue.toString(), HashMap.class );
+      Document refPoint = new Document( updateFields );
+      Document query = new Document().append( "properties.OBJECTID", key );
+      Document fieldsToSet = new Document();
+
+      fieldsToSet.put( updateFieldName, refPoint );
+      Document update = new Document( "$set", fieldsToSet );
+
+      UpdateResult res = collection.updateMany( query, update );
+      if ( res.wasAcknowledged() && res.getMatchedCount() == 0 ) {
+        System.err.println( "Nothing updated for key " + key );
+        return Status.NOT_FOUND;
+      }
+    } catch ( Exception e ) {
+      System.err.println( e.toString() );
+      return Status.ERROR;
+    }
+    return Status.OK;
+  }
+
+  // *********************  GEO Near ********************************
+
+  @Override
+  public Status geoNear(String table, HashMap<String, ByteIterator> result, GeoGenerator gen) {
+    try {
+      MongoCollection<Document> collection = database.getCollection(table);
+      String nearFieldName = gen.getGeoPredicate().getNestedPredicateA().getName();
+      JSONObject nearFieldValue = gen.getGeoPredicate().getNestedPredicateA().getValueA();
+
+      HashMap<String, Object> nearFields = new ObjectMapper().readValue(nearFieldValue.toString(), HashMap.class);
+      Document refPoint = new Document(nearFields);
+      // Document query = new Document("properties.OBJECTID", key);
+
+      //FindIterable<Document> findIterable = collection.find(query);
+
+      FindIterable<Document> findIterable = collection.find(Filters.near(
+          nearFieldName, refPoint, 1000.0, 0.0));
+      Document projection = new Document();
+      for (String field : gen.getAllGeoFields()) {
+        projection.put(field, INCLUDE);
+      }
+      findIterable.projection(projection);
+
+      Document queryResult = findIterable.first();
+
+      if (queryResult != null) {
+        geoFillMap(result, queryResult);
+      }
+      return queryResult != null ? Status.OK : Status.NOT_FOUND;
+    } catch (Exception e) {
+      System.err.println(e);
+      e.printStackTrace();
+      return Status.ERROR;
+    }
+  }
+
+
+  // *********************  GEO Box ********************************
+
+  @Override
+  public Status geoBox(String table, HashMap<String, ByteIterator> result, GeoGenerator gen) {
+    try {
+      MongoCollection<Document> collection = database.getCollection(table);
+      String boxFieldName1 = gen.getGeoPredicate().getNestedPredicateA().getName();
+      JSONObject boxFieldValue1 = gen.getGeoPredicate().getNestedPredicateA().getValueA();
+      JSONObject boxFieldValue2 = gen.getGeoPredicate().getNestedPredicateB().getValueA();
+
+      HashMap<String, Object> boxFields = new ObjectMapper().readValue(boxFieldValue1.toString(), HashMap.class);
+      Document refPoint = new Document();
+      refPoint.putAll(boxFields);
+      HashMap<String, Object> boxFields1 = new ObjectMapper().readValue(boxFieldValue2.toString(), HashMap.class);
+      Document refPoint2 = new Document();
+      refPoint2.putAll(boxFields1);
+      ArrayList coords1 = ((ArrayList) refPoint.get("coordinates"));
+      List<Double> rp = new ArrayList<>();
+      for(Object element: coords1) {
+        rp.add((Double) element);
+      }
+      ArrayList coords2 = ((ArrayList) refPoint2.get("coordinates"));
+      for(Object element: coords2) {
+        rp.add((Double) element);
+      }
+      // Document query = new Document("properties.OBJECTID", key);
+
+      //FindIterable<Document> findIterable = collection.find(query);
+
+      FindIterable<Document> findIterable = collection.find(
+          Filters.geoWithinBox(boxFieldName1, rp.get(0), rp.get(1), rp.get(2), rp.get(3)));
+      Document projection = new Document();
+      for (String field : gen.getAllGeoFields()) {
+        projection.put(field, INCLUDE);
+      }
+      findIterable.projection(projection);
+
+      Document queryResult = findIterable.first();
+
+      if (queryResult != null) {
+        geoFillMap(result, queryResult);
+      }
+      return queryResult != null ? Status.OK : Status.NOT_FOUND;
+    } catch (Exception e) {
+      System.err.println(e);
+      return Status.ERROR;
+    }
+  }
+
+  // *********************  GEO Intersect ********************************
+
+  @Override
+  public Status geoIntersect(String table, HashMap<String, ByteIterator> result, GeoGenerator gen) {
+    try {
+      MongoCollection<Document> collection = database.getCollection(table);
+      String fieldName1 = gen.getGeoPredicate().getNestedPredicateA().getName();
+      JSONObject intersectFieldValue2 = gen.getGeoPredicate().getNestedPredicateC().getValueA();
+
+      HashMap<String, Object> intersectFields = new ObjectMapper()
+          .readValue(intersectFieldValue2.toString(), HashMap.class);
+      Document refPoint = new Document(intersectFields);
+      FindIterable<Document> findIterable = collection.find(
+          Filters.geoIntersects(fieldName1, refPoint));
+      Document projection = new Document();
+      for (String field : gen.getAllGeoFields()) {
+        projection.put(field, INCLUDE);
+      }
+      findIterable.projection(projection);
+
+      Document queryResult = findIterable.first();
+
+      if (queryResult != null) {
+        geoFillMap(result, queryResult);
+      }
+      return queryResult != null ? Status.OK : Status.NOT_FOUND;
+    } catch (Exception e) {
+      System.err.println(e);
+      return Status.ERROR;
+    }
+  }
+
+  // *********************  GEO Scan ********************************
+  @Override
+  public Status geoScan(String table, final Vector<HashMap<String, ByteIterator>> result, GeoGenerator gen) {
+    String startkey = gen.getIncidentIdWithDistribution();
+    int recordcount = gen.getRandomLimit();
+    MongoCursor<Document> cursor = null;
+    try {
+      MongoCollection<Document> collection = database.getCollection(table);
+
+      Document scanRange = new Document("$gte", startkey);
+      Document query = new Document("OBJECTID", scanRange);
+
+      FindIterable<Document> findIterable =
+          collection.find(query).limit(recordcount);
+
+      Document projection = new Document();
+      for (String field : gen.getAllGeoFields()) {
+        projection.put(field, INCLUDE);
+      }
+      findIterable.projection(projection);
+
+      cursor = findIterable.iterator();
+
+      if (!cursor.hasNext()) {
+        System.err.println("Nothing found in scan for key " + startkey);
+        return Status.ERROR;
+      }
+
+      result.ensureCapacity(recordcount);
+
+      while (cursor.hasNext()) {
+        HashMap<String, ByteIterator> resultMap =
+            new HashMap<String, ByteIterator>();
+
+        Document obj = cursor.next();
+        geoFillMap(resultMap, obj);
+        result.add(resultMap);
+      }
+      return Status.OK;
+    } catch (Exception e) {
+      System.err.println(e.toString());
+      return Status.ERROR;
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+  }
+
+  protected void geoFillMap(Map<String, ByteIterator> resultMap, Document obj) {
+    for (Map.Entry<String, Object> entry : obj.entrySet()) {
+      String value = "null";
+      if (entry.getValue() != null) {
+        value = entry.getValue().toString();
+      }
+      resultMap.put(entry.getKey(), new StringByteIterator(value));
     }
   }
 }

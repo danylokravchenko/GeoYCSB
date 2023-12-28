@@ -610,7 +610,7 @@ public class CoreWorkload extends Workload {
    * have no side effects other than DB operations.
    */
   @Override
-  public boolean doInsert(DB db, Object threadstate) {
+  public boolean doInsert(GeoDB db, Object threadstate) {
     int keynum = keysequence.nextValue().intValue();
     String dbkey = CoreWorkload.buildKeyName(keynum, zeropadding, orderedinserts);
     HashMap<String, ByteIterator> values = buildValues(dbkey);
@@ -653,7 +653,7 @@ public class CoreWorkload extends Workload {
    * have no side effects other than DB operations.
    */
   @Override
-  public boolean doTransaction(DB db, Object threadstate) {
+  public boolean doTransaction(GeoDB db, Object threadstate) {
     String operation = operationchooser.nextString();
     if(operation == null) {
       return false;
@@ -719,7 +719,7 @@ public class CoreWorkload extends Workload {
     return keynum;
   }
 
-  public void doTransactionRead(DB db) {
+  public void doTransactionRead(GeoDB db) {
     // choose a random key
     long keynum = nextKeynum();
 
@@ -746,7 +746,7 @@ public class CoreWorkload extends Workload {
     }
   }
 
-  public void doTransactionReadModifyWrite(DB db) {
+  public void doTransactionReadModifyWrite(GeoDB db) {
     // choose a random key
     long keynum = nextKeynum();
 
@@ -793,7 +793,7 @@ public class CoreWorkload extends Workload {
     measurements.measureIntended("READ-MODIFY-WRITE", (int) ((en - ist) / 1000));
   }
 
-  public void doTransactionScan(DB db) {
+  public void doTransactionScan(GeoDB db) {
     // choose a random key
     long keynum = nextKeynum();
 
@@ -815,7 +815,7 @@ public class CoreWorkload extends Workload {
     db.scan(table, startkeyname, len, fields, new Vector<HashMap<String, ByteIterator>>());
   }
 
-  public void doTransactionUpdate(DB db) {
+  public void doTransactionUpdate(GeoDB db) {
     // choose a random key
     long keynum = nextKeynum();
 
@@ -834,7 +834,7 @@ public class CoreWorkload extends Workload {
     db.update(table, keyname, values);
   }
 
-  public void doTransactionInsert(DB db) {
+  public void doTransactionInsert(GeoDB db) {
     // choose the next key
     long keynum = transactioninsertkeysequence.nextValue();
 

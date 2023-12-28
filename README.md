@@ -16,10 +16,21 @@ permissions and limitations under the License. See accompanying
 LICENSE file.
 -->
 
-YCSB
+GeoYCSB (Yahoo! Cloud Serving Benchmark for Geo workloads)
 ====================================
-[![Build Status](https://travis-ci.org/brianfrankcooper/YCSB.png?branch=master)](https://travis-ci.org/brianfrankcooper/YCSB)
+The original benchmark YCSB measures databases performance based
+on generated input. However, for geospatial workloads there is a need to 
+have the same input to measure geospatial operations on the same data. 
+Hence, the benchmark should be adapted to consume data from the file input 
+and include spatial operations in workload measurements.
 
+History
+-----
+* YCSB 
+* Couchbase fork of YCSB
+* Blogpost about creating input from JSON file in YCSB
+* GeoYCSB paper with spatial benchmark for MongoDB and Couchbase
+* This repository: adjustment (modernizing) and rewriting parts of GeoYCSB. ArangoDB support
 
 
 Links
@@ -27,6 +38,10 @@ Links
 * To get here, use https://ycsb.site
 * [Our project docs](https://github.com/brianfrankcooper/YCSB/wiki)
 * [The original announcement from Yahoo!](https://labs.yahoo.com/news/yahoo-cloud-serving-benchmark/)
+* [Reading JSON in YCSB blogpost](https://dzone.com/articles/ycsb-json-implementation-for-couchbase-and-mongodb)
+* [Couchbase fork of YCSB](https://github.com/couchbaselabs/YCSB)
+* [Scientific paper of GeoYCSB](https://doi.org/10.1016/j.bdr.2023.100368)
+* [Spatial Benchmark](https://github.com/yuvrajkanwar/Spatial-Benchmark)
 
 Getting Started
 ---------------
