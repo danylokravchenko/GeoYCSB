@@ -33,14 +33,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import site.ycsb.ByteIterator;
-import site.ycsb.Client;
-import site.ycsb.DB;
-import site.ycsb.NumericByteIterator;
-import site.ycsb.Status;
-import site.ycsb.StringByteIterator;
-import site.ycsb.Utils;
-import site.ycsb.WorkloadException;
+import site.ycsb.*;
 import site.ycsb.measurements.Measurements;
 
 import org.testng.annotations.Test;
@@ -514,7 +507,7 @@ public class TestTimeSeriesWorkload {
     }
   }
   
-  static class MockDB extends DB {
+  static class MockDB extends GeoDB {
     final List<String> keys = new ArrayList<String>();
     final List<Map<String, ByteIterator>> values = 
         new ArrayList<Map<String, ByteIterator>>();

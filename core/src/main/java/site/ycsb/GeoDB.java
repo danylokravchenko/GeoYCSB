@@ -3,8 +3,6 @@ package site.ycsb;
 import site.ycsb.generator.GeoGenerator;
 
 import java.util.HashMap;
-import java.util.Properties;
-import java.util.Set;
 import java.util.Vector;
 
 /**

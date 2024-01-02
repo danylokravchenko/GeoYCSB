@@ -38,8 +38,8 @@ Links
 * To get here, use https://ycsb.site
 * [Our project docs](https://github.com/brianfrankcooper/YCSB/wiki)
 * [The original announcement from Yahoo!](https://labs.yahoo.com/news/yahoo-cloud-serving-benchmark/)
-* [Reading JSON in YCSB blogpost](https://dzone.com/articles/ycsb-json-implementation-for-couchbase-and-mongodb)
 * [Couchbase fork of YCSB](https://github.com/couchbaselabs/YCSB)
+* [Reading JSON in YCSB - Couchbase blogpost](https://www.couchbase.com/blog/ycsb-json-implementation-for-couchbase-and-mongodb/)
 * [Scientific paper of GeoYCSB](https://doi.org/10.1016/j.bdr.2023.100368)
 * [Spatial Benchmark](https://github.com/yuvrajkanwar/Spatial-Benchmark)
 

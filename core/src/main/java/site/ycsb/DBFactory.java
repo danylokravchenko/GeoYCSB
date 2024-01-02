@@ -29,15 +29,15 @@ public final class DBFactory {
     // not used
   }
 
-  public static DB newDB(String dbname, Properties properties, final Tracer tracer) throws UnknownDBException {
+  public static GeoDB newDB(String dbname, Properties properties, final Tracer tracer) throws UnknownDBException {
     ClassLoader classLoader = DBFactory.class.getClassLoader();
 
-    DB ret;
+    GeoDB ret;
 
     try {
       Class dbclass = classLoader.loadClass(dbname);
 
-      ret = (DB) dbclass.newInstance();
+      ret = (GeoDB) dbclass.newInstance();
     } catch (Exception e) {
       e.printStackTrace();
       return null;
@@ -45,7 +45,7 @@ public final class DBFactory {
 
     ret.setProperties(properties);
 
-    return new DBWrapper(ret, tracer);
+    return new GeoDBWrapper(ret, tracer);
   }
 
 }

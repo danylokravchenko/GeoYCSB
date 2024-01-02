@@ -18,7 +18,6 @@
 package site.ycsb.workloads;
 
 import site.ycsb.ByteIterator;
-import site.ycsb.DB;
 import site.ycsb.GeoDB;
 import site.ycsb.RandomByteIterator;
 import site.ycsb.WorkloadException;

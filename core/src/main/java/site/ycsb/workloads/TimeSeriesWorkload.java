@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 import site.ycsb.ByteIterator;
 import site.ycsb.Client;
-import site.ycsb.DB;
 import site.ycsb.GeoDB;
 import site.ycsb.NumericByteIterator;
 import site.ycsb.Status;

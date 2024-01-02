@@ -74,15 +74,7 @@ Download the YCSB zip file and compile:
 
 ### 4. Run YCSB
 
-Now you are ready to run! First, use the asynchronous driver to load the data:
-
-    ./bin/ycsb load mongodb-async -s -P workloads/workloada > outputLoad.txt
-
-Then, run the workload:
-
-    ./bin/ycsb run mongodb-async -s -P workloads/workloada > outputRun.txt
-    
-Similarly, to use the synchronous driver from MongoDB Inc. we load the data: 
+Now you are ready to run! Use the synchronous driver from MongoDB Inc. to load the data: 
 
     ./bin/ycsb load mongodb -s -P workloads/workloada > outputLoad.txt
 
@@ -151,9 +143,5 @@ bin/ycsb run mongodb -jvm-args="-Dlogback.configurationFile=/path/to/logback.xml
   - Default value is `5`.
 
 For example:
-
-    ./bin/ycsb load mongodb-async -s -P workloads/workloada -p mongodb.url=mongodb://localhost:27017/ycsb?w=0
-
-To run with the synchronous driver from MongoDB Inc.:
 
     ./bin/ycsb load mongodb -s -P workloads/workloada -p mongodb.url=mongodb://localhost:27017/ycsb?w=0

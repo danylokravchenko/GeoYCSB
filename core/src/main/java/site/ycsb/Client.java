@@ -404,7 +404,7 @@ public final class Client {
                                            double targetperthreadperms, Workload workload, Tracer tracer,
                                            CountDownLatch completeLatch) {
     boolean initFailed = false;
-    boolean dotransactions = Boolean.valueOf(props.getProperty(DO_TRANSACTIONS_PROPERTY, String.valueOf(true)));
+    boolean dotransactions = Boolean.parseBoolean(props.getProperty(DO_TRANSACTIONS_PROPERTY, String.valueOf(true)));
 
     final List<ClientThread> clients = new ArrayList<>(threadcount);
     try (final TraceScope span = tracer.newScope(CLIENT_INIT_SPAN)) {
@@ -423,7 +423,7 @@ public final class Client {
         System.out.println("Warning: the threadcount is bigger than recordcount, the threadcount will be recordcount!");
       }
       for (int threadid = 0; threadid < threadcount; threadid++) {
-        DB db;
+        GeoDB db;
         try {
           db = DBFactory.newDB(dbname, props, tracer);
         } catch (UnknownDBException e) {

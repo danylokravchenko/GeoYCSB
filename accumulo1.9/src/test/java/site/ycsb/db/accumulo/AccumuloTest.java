@@ -26,6 +26,7 @@ import static org.junit.Assume.assumeTrue;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import site.ycsb.GeoDB;
 import site.ycsb.Workload;
 import site.ycsb.DB;
 import site.ycsb.measurements.Measurements;
@@ -68,7 +69,7 @@ public class AccumuloTest {
   private static MiniAccumuloCluster cluster;
   private static Properties properties;
   private Workload workload;
-  private DB client;
+  private GeoDB client;
   private Properties workloadProps;
 
   private static boolean isWindows() {

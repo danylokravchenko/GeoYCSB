@@ -53,16 +53,12 @@ import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.util.CleanUp;
 import org.apache.hadoop.io.Text;
 
-import site.ycsb.ByteArrayByteIterator;
-import site.ycsb.ByteIterator;
-import site.ycsb.DB;
-import site.ycsb.DBException;
-import site.ycsb.Status;
+import site.ycsb.*;
 
 /**
  * <a href="https://accumulo.apache.org/">Accumulo</a> binding for YCSB.
  */
-public class AccumuloClient extends DB {
+public class AccumuloClient extends GeoDB {
 
   private ZooKeeperInstance inst;
   private Connector connector;
