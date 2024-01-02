@@ -462,7 +462,7 @@ public class MongoDbClient extends GeoDB {
   public Status geoLoad(String table, GeoGenerator generator, Double recordCount) {
 
     try {
-      String key = generator.getIncidentsIdRandom();
+      String key = generator.getDocIdRandom();
       MongoCollection<Document> collection = database.getCollection(table);
       Random rand = new Random();
       int objId = rand.nextInt(
@@ -478,7 +478,7 @@ public class MongoDbClient extends GeoDB {
         return Status.OK;
       }
 
-      generator.putIncidentsDocument(key, queryResult.toJson());
+      generator.putDocument(key, queryResult.toJson());
       System.out.println("Key : " + key + " Query Result :" + queryResult.toJson());
       generator.buildGeoInsertDocument();
       int inserts = (int) Math.round(recordCount / Integer.parseInt(GeoWorkload.TOTAL_DOCS_DEFAULT)) - 1;
@@ -559,10 +559,6 @@ public class MongoDbClient extends GeoDB {
 
       HashMap<String, Object> nearFields = new ObjectMapper().readValue(nearFieldValue.toString(), HashMap.class);
       Document refPoint = new Document(nearFields);
-      // Document query = new Document("properties.OBJECTID", key);
-
-      //FindIterable<Document> findIterable = collection.find(query);
-
       FindIterable<Document> findIterable = collection.find(Filters.near(nearFieldName, refPoint, 1000.0, 0.0));
       Document projection = new Document();
       for (String field : gen.getAllGeoFields()) {
@@ -667,7 +663,7 @@ public class MongoDbClient extends GeoDB {
   // *********************  GEO Scan ********************************
   @Override
   public Status geoScan(String table, final Vector<HashMap<String, ByteIterator>> result, GeoGenerator gen) {
-    String startkey = gen.getIncidentIdWithDistribution();
+    String startkey = gen.getDocIdWithDistribution();
     int recordcount = gen.getRandomLimit();
     MongoCursor<Document> cursor = null;
     try {

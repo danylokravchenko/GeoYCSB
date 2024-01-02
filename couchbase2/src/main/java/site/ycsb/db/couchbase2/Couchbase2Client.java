@@ -835,10 +835,10 @@ public class Couchbase2Client extends GeoDB {
   @Override
   public Status geoLoad(String table, GeoGenerator generator, Double recordCount) {
     try {
-      String docId = generator.getIncidentsIdRandom();
+      String docId = generator.getDocIdRandom();
       RawJsonDocument doc = bucket.get(docId, RawJsonDocument.class);
       if (doc != null) {
-        generator.putIncidentsDocument(docId, doc.content());
+        generator.putDocument(docId, doc.content());
       } else {
         System.err.println("Error getting document from DB: " + docId);
       }
@@ -923,7 +923,7 @@ public class Couchbase2Client extends GeoDB {
 
   private Status geoUpdateKv(GeoGenerator gen) {
     waitForMutationResponse(bucket.async().replace(
-        RawJsonDocument.create(gen.getIncidentIdWithDistribution(), documentExpiry,
+        RawJsonDocument.create(gen.getDocIdWithDistribution(), documentExpiry,
             gen.getGeoPredicate().getNestedPredicateA().getValueA().toString()), persistTo, replicateTo));
 
     return Status.OK;
@@ -936,7 +936,7 @@ public class Couchbase2Client extends GeoDB {
             " = $2";
 
     N1qlQueryResult queryResult = bucket.query(N1qlQuery.parameterized(updateQuery,
-        JsonArray.from(gen.getIncidentIdWithDistribution(), gen.getGeoPredicate().getNestedPredicateA().getValueA()),
+        JsonArray.from(gen.getDocIdWithDistribution(), gen.getGeoPredicate().getNestedPredicateA().getValueA()),
         N1qlParams.build().adhoc(adhoc).maxParallelism(maxParallelism)));
 
     if (!queryResult.parseSuccess() || !queryResult.finalSuccess()) {

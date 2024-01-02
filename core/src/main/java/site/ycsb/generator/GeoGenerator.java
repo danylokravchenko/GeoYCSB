@@ -21,47 +21,48 @@ import org.json.*;
 public abstract class GeoGenerator {
 
 
-  public static final String GEO_DOCUMENT_PREFIX_INCIDENTS = "incidents";
+  public static final String GEO_DOCUMENT_PREFIX_COLLECTION = "usertable";
   public static final String GEO_SYSTEMFIELD_DELIMITER = ":::";
   public static final String GEO_SYSTEMFIELD_INSERTDOC_COUNTER = "GEO_insert_document_counter";
-  public static final String GEO_SYSTEMFIELD_STORAGEDOCS_COUNT_INCIDENTS = "GEO_storage_docs_count_incidents";
+  public static final String GEO_SYSTEMFIELD_STORAGEDOCS_COUNT_DOCS = "GEO_storage_docs_count_docs";
   public static final String GEO_SYSTEMFIELD_TOTALDOCS_COUNT = "GEO_total_docs_count";
   private static final String GEO_METAFIELD_DOCID = "GEO_doc_id";
   private static final String GEO_METAFIELD_INSERTDOC = "GEO_insert_document";
-  private static final String GEO_FIELD_INCIDENTS_ID = "_id";
-  private static final String GEO_FIELD_INCIDENTS_TYPE = "type";
-  private static final String GEO_FIELD_INCIDENTS_PROPERTIES = "properties";
-  private static final String GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_OBJECTID = "OBJECTID";
-  private static final String GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_INCIDENT_NUMBER = "INCIDENT_NUMBER";
-  private static final String GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_LOCATION = "LOCATION";
-  private static final String GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_NOTIFICATION = "NOTIFICATION";
-  private static final String GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_INCIDENT_DATE = "INCIDENT_DATE";
-  private static final String GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_TAG_COUNT = "TAG_COUNT";
-  private static final String GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_MONIKER_CLASS = "MONIKER_CLASS";
-  private static final String GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_SQ_FT = "SQ_FT";
-  private static final String GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_PROP_TYPE = "PROP_TYPE";
-  private static final String GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_WAIVER = "Waiver";
-  private static final String GEO_FIELD_INCIDENTS_GEOMETRY = "geometry";
-  private static final String GEO_FIELD_INCIDENTS_GEOMETRY_OBJ_TYPE = "type";
-  private static final String GEO_FIELD_INCIDENTS_GEOMETRY_OBJ_COORDINATES = "coordinates";
+  private static final String GEO_FIELD_DOC_ID = "_id";
+  private static final String GEO_FIELD_DOC_TYPE = "type";
+  // TODO: remove unnecessary fields/properties
+  private static final String GEO_FIELD_DOC_PROPERTIES = "properties";
+  private static final String GEO_FIELD_DOC_PROPERTIES_OBJ_OBJECTID = "OBJECTID";
+  private static final String GEO_FIELD_DOC_PROPERTIES_OBJ_INCIDENT_NUMBER = "INCIDENT_NUMBER";
+  private static final String GEO_FIELD_DOC_PROPERTIES_OBJ_LOCATION = "LOCATION";
+  private static final String GEO_FIELD_DOC_PROPERTIES_OBJ_NOTIFICATION = "NOTIFICATION";
+  private static final String GEO_FIELD_DOC_PROPERTIES_OBJ_INCIDENT_DATE = "INCIDENT_DATE";
+  private static final String GEO_FIELD_DOC_PROPERTIES_OBJ_TAG_COUNT = "TAG_COUNT";
+  private static final String GEO_FIELD_DOC_PROPERTIES_OBJ_MONIKER_CLASS = "MONIKER_CLASS";
+  private static final String GEO_FIELD_DOC_PROPERTIES_OBJ_SQ_FT = "SQ_FT";
+  private static final String GEO_FIELD_DOC_PROPERTIES_OBJ_PROP_TYPE = "PROP_TYPE";
+  private static final String GEO_FIELD_DOC_PROPERTIES_OBJ_WAIVER = "Waiver";
+  private static final String GEO_FIELD_DOC_GEOMETRY = "geometry";
+  private static final String GEO_FIELD_DOC_GEOMETRY_OBJ_TYPE = "type";
+  private static final String GEO_FIELD_DOC_GEOMETRY_OBJ_COORDINATES = "coordinates";
   private final Set<String> allGeoFields = new HashSet<String>() {
     {
-      add(GEO_FIELD_INCIDENTS_ID);
-      add(GEO_FIELD_INCIDENTS_TYPE);
-      add(GEO_FIELD_INCIDENTS_PROPERTIES);
-      add(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_OBJECTID);
-      add(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_INCIDENT_NUMBER);
-      add(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_LOCATION);
-      add(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_NOTIFICATION);
-      add(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_INCIDENT_DATE);
-      add(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_TAG_COUNT);
-      add(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_MONIKER_CLASS);
-      add(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_SQ_FT);
-      add(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_PROP_TYPE);
-      add(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_WAIVER);
-      add(GEO_FIELD_INCIDENTS_GEOMETRY);
-      add(GEO_FIELD_INCIDENTS_GEOMETRY_OBJ_TYPE);
-      add(GEO_FIELD_INCIDENTS_GEOMETRY_OBJ_COORDINATES);
+      add(GEO_FIELD_DOC_ID);
+      add(GEO_FIELD_DOC_TYPE);
+      add(GEO_FIELD_DOC_PROPERTIES);
+      add(GEO_FIELD_DOC_PROPERTIES_OBJ_OBJECTID);
+      add(GEO_FIELD_DOC_PROPERTIES_OBJ_INCIDENT_NUMBER);
+      add(GEO_FIELD_DOC_PROPERTIES_OBJ_LOCATION);
+      add(GEO_FIELD_DOC_PROPERTIES_OBJ_NOTIFICATION);
+      add(GEO_FIELD_DOC_PROPERTIES_OBJ_INCIDENT_DATE);
+      add(GEO_FIELD_DOC_PROPERTIES_OBJ_TAG_COUNT);
+      add(GEO_FIELD_DOC_PROPERTIES_OBJ_MONIKER_CLASS);
+      add(GEO_FIELD_DOC_PROPERTIES_OBJ_SQ_FT);
+      add(GEO_FIELD_DOC_PROPERTIES_OBJ_PROP_TYPE);
+      add(GEO_FIELD_DOC_PROPERTIES_OBJ_WAIVER);
+      add(GEO_FIELD_DOC_GEOMETRY);
+      add(GEO_FIELD_DOC_GEOMETRY_OBJ_TYPE);
+      add(GEO_FIELD_DOC_GEOMETRY_OBJ_COORDINATES);
     }
   };
   private final int storedDocsCountCustomer = 0;
@@ -80,7 +81,7 @@ public abstract class GeoGenerator {
    */
 
   private int totalDocsCount = 0;
-  private int storedDocsCountIncidents = 0;
+  private int storedDocsCountDocs = 0;
   private boolean allValuesInitialized = false;
   private int queryLimitMin = 0;
   private int queryLimitMax = 0;
@@ -136,11 +137,11 @@ public abstract class GeoGenerator {
   }
 
 
-  public void putIncidentsDocument(String docKey, String docBody) throws
+  public void putDocument(String docKey, String docBody) throws
       Exception {
     HashMap<String, String> tokens = tokenize(docBody);
-    String prefix = GEO_DOCUMENT_PREFIX_INCIDENTS + GEO_SYSTEMFIELD_DELIMITER;
-    int storageCount = increment(prefix + GEO_SYSTEMFIELD_STORAGEDOCS_COUNT_INCIDENTS, 1) - 1;
+    String prefix = GEO_DOCUMENT_PREFIX_COLLECTION + GEO_SYSTEMFIELD_DELIMITER;
+    int storageCount = increment(prefix + GEO_SYSTEMFIELD_STORAGEDOCS_COUNT_DOCS, 1) - 1;
 
     setVal(prefix + GEO_METAFIELD_DOCID + GEO_SYSTEMFIELD_DELIMITER + storageCount, docKey);
     setVal(prefix + GEO_METAFIELD_INSERTDOC + GEO_SYSTEMFIELD_DELIMITER + storageCount, docBody);
@@ -191,25 +192,25 @@ public abstract class GeoGenerator {
 
 
   public void buildGeoReadPredicate() {
-    String storageKey = GEO_DOCUMENT_PREFIX_INCIDENTS + GEO_SYSTEMFIELD_DELIMITER + GEO_METAFIELD_INSERTDOC +
-        GEO_SYSTEMFIELD_DELIMITER + getIncidentIdWithDistribution();
+    String storageKey = GEO_DOCUMENT_PREFIX_COLLECTION + GEO_SYSTEMFIELD_DELIMITER + GEO_METAFIELD_INSERTDOC +
+        GEO_SYSTEMFIELD_DELIMITER + getDocIdWithDistribution();
 
     String docBody = getVal(storageKey);
-    String keyPrefix = GEO_DOCUMENT_PREFIX_INCIDENTS + GEO_SYSTEMFIELD_DELIMITER;
+    String keyPrefix = GEO_DOCUMENT_PREFIX_COLLECTION + GEO_SYSTEMFIELD_DELIMITER;
     int docCounter = increment(keyPrefix + GEO_SYSTEMFIELD_INSERTDOC_COUNTER, 1);
 
     geoPredicate = new DataFilter();
     geoPredicate.setDocid(keyPrefix + docCounter);
     geoPredicate.setValue(docBody);
     DataFilter queryPredicate = new DataFilter();
-    queryPredicate.setName(GEO_FIELD_INCIDENTS_GEOMETRY);
+    queryPredicate.setName(GEO_FIELD_DOC_GEOMETRY);
     JSONObject obj = new JSONObject(geoPredicate.getValue());
     JSONObject jobj = (JSONObject) obj.get("geometry");
     queryPredicate.setValueA(jobj);
 
     buildGeoInsertDocument();
     DataFilter queryPredicate2 = new DataFilter();
-    queryPredicate2.setName(GEO_FIELD_INCIDENTS_GEOMETRY);
+    queryPredicate2.setName(GEO_FIELD_DOC_GEOMETRY);
     double[] latLong2 = {
         -111 - rand.nextDouble(),
         33 + rand.nextDouble()
@@ -221,7 +222,7 @@ public abstract class GeoGenerator {
 
     buildGeoInsertDocument();
     DataFilter queryPredicate3 = new DataFilter();
-    queryPredicate3.setName(GEO_FIELD_INCIDENTS_GEOMETRY);
+    queryPredicate3.setName(GEO_FIELD_DOC_GEOMETRY);
     double[] latLong = {
         -111 - rand.nextDouble(),
         33 + rand.nextDouble()
@@ -258,11 +259,11 @@ public abstract class GeoGenerator {
 
 
   public void buildGeoInsertDocument() {
-    String storageKey = GEO_DOCUMENT_PREFIX_INCIDENTS + GEO_SYSTEMFIELD_DELIMITER + GEO_METAFIELD_INSERTDOC +
-        GEO_SYSTEMFIELD_DELIMITER + getNumberRandom(getStoredIncidentsCount());
+    String storageKey = GEO_DOCUMENT_PREFIX_COLLECTION + GEO_SYSTEMFIELD_DELIMITER + GEO_METAFIELD_INSERTDOC +
+        GEO_SYSTEMFIELD_DELIMITER + getNumberRandom(getStoredDocsCount());
 
     String docBody = getVal(storageKey);
-    String keyPrefix = GEO_DOCUMENT_PREFIX_INCIDENTS + GEO_SYSTEMFIELD_DELIMITER;
+    String keyPrefix = GEO_DOCUMENT_PREFIX_COLLECTION + GEO_SYSTEMFIELD_DELIMITER;
     int docCounter = increment(keyPrefix + GEO_SYSTEMFIELD_INSERTDOC_COUNTER, 1);
 
     geoPredicate = new DataFilter();
@@ -275,7 +276,7 @@ public abstract class GeoGenerator {
   public void buildGeoUpdatePredicate() {
     buildGeoInsertDocument();
     DataFilter queryPredicate = new DataFilter();
-    queryPredicate.setName(GEO_FIELD_INCIDENTS_GEOMETRY);
+    queryPredicate.setName(GEO_FIELD_DOC_GEOMETRY);
     double[] latLong = {
         -111 - rand.nextDouble(),
         33 + rand.nextDouble()
@@ -288,19 +289,19 @@ public abstract class GeoGenerator {
   }
 
 
-  public String getIncidentsIdRandom() {
-    return "" + getNumberRandom(getTotalIncidentsCount());
+  public String getDocIdRandom() {
+    return "" + getNumberRandom(getTotalDocsCount());
   }
 
 
-  public String getIncidentIdWithDistribution() {
+  public String getDocIdWithDistribution() {
     if (isZipfian) {
-      return getNumberZipfianUnifrom(getTotalIncidentsCount()) + "";
+      return getNumberZipfianUnifrom(getTotalDocsCount()) + "";
     }
     if (isLatest) {
-      return getNumberZipfianLatests(getTotalIncidentsCount()) + "";
+      return getNumberZipfianLatests(getTotalDocsCount()) + "";
     }
-    return getIncidentsIdRandom();
+    return getDocIdRandom();
   }
 
 
@@ -346,7 +347,7 @@ public abstract class GeoGenerator {
   private void tokenizeFields(JSONObject obj, HashMap<String, String> tokens) {
 
     //string
-    ArrayList<String> stringFields = new ArrayList<>(Collections.singletonList(GEO_FIELD_INCIDENTS_TYPE));
+    ArrayList<String> stringFields = new ArrayList<>(Collections.singletonList(GEO_FIELD_DOC_TYPE));
 
     for (String field : stringFields) {
       tokens.put(field, null);
@@ -359,9 +360,9 @@ public abstract class GeoGenerator {
 
   private void tokenizeObjects(JSONObject obj, HashMap<String, String> tokens) {
 
-    String id = GEO_FIELD_INCIDENTS_ID;
+    String id = GEO_FIELD_DOC_ID;
 
-    tokens.put(GEO_FIELD_INCIDENTS_ID, null);
+    tokens.put(GEO_FIELD_DOC_ID, null);
 
     if (obj.has(id) && !obj.isNull(id)) {
       JSONObject idobj = obj.getJSONObject(id);
@@ -369,28 +370,28 @@ public abstract class GeoGenerator {
       tokens.put(key, JSONObject.valueToString(idobj));
     }
     //1-level nested objects
-    String field = GEO_FIELD_INCIDENTS_PROPERTIES;
+    String field = GEO_FIELD_DOC_PROPERTIES;
 
     String l1Prefix = field + GEO_SYSTEMFIELD_DELIMITER;
-    tokens.put(l1Prefix + GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_OBJECTID, null);
-    tokens.put(l1Prefix + GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_INCIDENT_NUMBER, null);
-    tokens.put(l1Prefix + GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_LOCATION, null);
-    tokens.put(l1Prefix + GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_NOTIFICATION, null);
-    tokens.put(l1Prefix + GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_INCIDENT_DATE, null);
-    tokens.put(l1Prefix + GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_TAG_COUNT, null);
-    tokens.put(l1Prefix + GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_MONIKER_CLASS, null);
-    tokens.put(l1Prefix + GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_SQ_FT, null);
-    tokens.put(l1Prefix + GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_PROP_TYPE, null);
-    tokens.put(l1Prefix + GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_WAIVER, null);
+    tokens.put(l1Prefix + GEO_FIELD_DOC_PROPERTIES_OBJ_OBJECTID, null);
+    tokens.put(l1Prefix + GEO_FIELD_DOC_PROPERTIES_OBJ_INCIDENT_NUMBER, null);
+    tokens.put(l1Prefix + GEO_FIELD_DOC_PROPERTIES_OBJ_LOCATION, null);
+    tokens.put(l1Prefix + GEO_FIELD_DOC_PROPERTIES_OBJ_NOTIFICATION, null);
+    tokens.put(l1Prefix + GEO_FIELD_DOC_PROPERTIES_OBJ_INCIDENT_DATE, null);
+    tokens.put(l1Prefix + GEO_FIELD_DOC_PROPERTIES_OBJ_TAG_COUNT, null);
+    tokens.put(l1Prefix + GEO_FIELD_DOC_PROPERTIES_OBJ_MONIKER_CLASS, null);
+    tokens.put(l1Prefix + GEO_FIELD_DOC_PROPERTIES_OBJ_SQ_FT, null);
+    tokens.put(l1Prefix + GEO_FIELD_DOC_PROPERTIES_OBJ_PROP_TYPE, null);
+    tokens.put(l1Prefix + GEO_FIELD_DOC_PROPERTIES_OBJ_WAIVER, null);
 
     if (obj.has(field) && !obj.isNull(field)) {
       JSONObject inobj = obj.getJSONObject(field);
 
       ArrayList<String> inobjStringFields = new ArrayList<>(
-          Arrays.asList(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_INCIDENT_NUMBER, GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_LOCATION,
-              GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_NOTIFICATION, GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_INCIDENT_DATE,
-              GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_MONIKER_CLASS, GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_PROP_TYPE,
-              GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_WAIVER));
+          Arrays.asList(GEO_FIELD_DOC_PROPERTIES_OBJ_INCIDENT_NUMBER, GEO_FIELD_DOC_PROPERTIES_OBJ_LOCATION,
+              GEO_FIELD_DOC_PROPERTIES_OBJ_NOTIFICATION, GEO_FIELD_DOC_PROPERTIES_OBJ_INCIDENT_DATE,
+              GEO_FIELD_DOC_PROPERTIES_OBJ_MONIKER_CLASS, GEO_FIELD_DOC_PROPERTIES_OBJ_PROP_TYPE,
+              GEO_FIELD_DOC_PROPERTIES_OBJ_WAIVER));
 
       for (String infield : inobjStringFields) {
         if (inobj.has(infield) && !inobj.isNull(infield)) {
@@ -399,8 +400,8 @@ public abstract class GeoGenerator {
         }
         //integer
         ArrayList<String> intFields = new ArrayList<>(
-            Arrays.asList(GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_OBJECTID, GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_TAG_COUNT,
-                GEO_FIELD_INCIDENTS_PROPERTIES_OBJ_SQ_FT));
+            Arrays.asList(GEO_FIELD_DOC_PROPERTIES_OBJ_OBJECTID, GEO_FIELD_DOC_PROPERTIES_OBJ_TAG_COUNT,
+                GEO_FIELD_DOC_PROPERTIES_OBJ_SQ_FT));
 
         for (String intfield : intFields) {
           if (inobj.has(intfield) && !inobj.isNull(intfield)) {
@@ -412,17 +413,17 @@ public abstract class GeoGenerator {
     }
 
     //geospatial objects
-    String geoField = GEO_FIELD_INCIDENTS_GEOMETRY;
+    String geoField = GEO_FIELD_DOC_GEOMETRY;
 
     String lPrefix = geoField + GEO_SYSTEMFIELD_DELIMITER;
-    tokens.put(lPrefix + GEO_FIELD_INCIDENTS_GEOMETRY_OBJ_TYPE, null);
-    tokens.put(lPrefix + GEO_FIELD_INCIDENTS_GEOMETRY_OBJ_COORDINATES, null);
+    tokens.put(lPrefix + GEO_FIELD_DOC_GEOMETRY_OBJ_TYPE, null);
+    tokens.put(lPrefix + GEO_FIELD_DOC_GEOMETRY_OBJ_COORDINATES, null);
 
     if (obj.has(geoField) && !obj.isNull(geoField)) {
       JSONObject ingobj = obj.getJSONObject(geoField);
 
       ArrayList<String> ingeoobjStringFields =
-          new ArrayList<>(Collections.singletonList(GEO_FIELD_INCIDENTS_GEOMETRY_OBJ_TYPE));
+          new ArrayList<>(Collections.singletonList(GEO_FIELD_DOC_GEOMETRY_OBJ_TYPE));
 
       for (String gfield : ingeoobjStringFields) {
         if (ingobj.has(gfield) && !ingobj.isNull(gfield)) {
@@ -431,7 +432,7 @@ public abstract class GeoGenerator {
         }
       }
 
-      String coord = GEO_FIELD_INCIDENTS_GEOMETRY_OBJ_COORDINATES;
+      String coord = GEO_FIELD_DOC_GEOMETRY_OBJ_COORDINATES;
       JSONArray arr = ingobj.getJSONArray(coord);
       if (arr.length() > 0) {
         String key = geoField + GEO_SYSTEMFIELD_DELIMITER + coord;
@@ -441,19 +442,19 @@ public abstract class GeoGenerator {
   }
 
 
-  private int getStoredIncidentsCount() {
-    if (storedDocsCountIncidents == 0) {
-      storedDocsCountIncidents = Integer.parseInt(getVal(
-          GEO_DOCUMENT_PREFIX_INCIDENTS + GEO_SYSTEMFIELD_DELIMITER + GEO_SYSTEMFIELD_STORAGEDOCS_COUNT_INCIDENTS));
+  private int getStoredDocsCount() {
+    if (storedDocsCountDocs == 0) {
+      storedDocsCountDocs = Integer.parseInt(getVal(
+          GEO_DOCUMENT_PREFIX_COLLECTION + GEO_SYSTEMFIELD_DELIMITER + GEO_SYSTEMFIELD_STORAGEDOCS_COUNT_DOCS));
     }
-    return storedDocsCountIncidents;
+    return storedDocsCountDocs;
   }
 
 
-  private int getTotalIncidentsCount() {
+  private int getTotalDocsCount() {
     if (totalDocsCount == 0) {
       totalDocsCount = Integer.parseInt(
-          getVal(GEO_DOCUMENT_PREFIX_INCIDENTS + GEO_SYSTEMFIELD_DELIMITER + GEO_SYSTEMFIELD_TOTALDOCS_COUNT));
+          getVal(GEO_DOCUMENT_PREFIX_COLLECTION + GEO_SYSTEMFIELD_DELIMITER + GEO_SYSTEMFIELD_TOTALDOCS_COUNT));
     }
     return totalDocsCount;
   }
@@ -461,7 +462,7 @@ public abstract class GeoGenerator {
 
   private int getNumberZipfianUnifrom(int totalItems) {
     if (zipfianGenerator == null) {
-      zipfianGenerator = new ZipfianGenerator(1L, Long.valueOf(getStoredIncidentsCount() - 1).longValue());
+      zipfianGenerator = new ZipfianGenerator(1L, Long.valueOf(getStoredDocsCount() - 1).longValue());
     }
     return totalItems - zipfianGenerator.nextValue().intValue();
   }
@@ -470,7 +471,7 @@ public abstract class GeoGenerator {
   //getting latest docId shifted back on (max limit + max offest) to ensure the query returns expected amount of results
   private int getNumberZipfianLatests(int totalItems) {
     if (zipfianGenerator == null) {
-      zipfianGenerator = new ZipfianGenerator(1L, Long.valueOf(getStoredIncidentsCount() - 1).longValue());
+      zipfianGenerator = new ZipfianGenerator(1L, Long.valueOf(getStoredDocsCount() - 1).longValue());
     }
     return totalItems - zipfianGenerator.nextValue().intValue() - queryLimitMax - queryOffsetMax;
   }

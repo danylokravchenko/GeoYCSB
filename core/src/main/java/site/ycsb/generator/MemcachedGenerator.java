@@ -12,7 +12,7 @@ import java.util.Properties;
  *
  * The storage-based generator is fetching pre-generated values/documents from an internal in-memory database instead
  * of generating new random values on the fly.
- * This approach allows YCSB to operate with real (or real-looking) JSON documents rather then synthetic.
+ * This approach allows YCSB to operate with real (or real-looking) JSON documents rather than synthetic.
  *
  * It also provides the ability to query rich JSON documents by splitting JSON documents into query predicates
  * (field, value, type, field-value relation, logical operation)
@@ -25,7 +25,7 @@ public class MemcachedGenerator extends GeoGenerator {
     super(p);
     try {
       client = createMemcachedClient(memHost, Integer.parseInt(memPort));
-      String prefix = GEO_DOCUMENT_PREFIX_INCIDENTS + GEO_SYSTEMFIELD_DELIMITER;
+      String prefix = GEO_DOCUMENT_PREFIX_COLLECTION + GEO_SYSTEMFIELD_DELIMITER;
 
       if (client.get(prefix + GEO_SYSTEMFIELD_TOTALDOCS_COUNT) == null){
         client.add(prefix + GEO_SYSTEMFIELD_TOTALDOCS_COUNT, 0, totalDocs);
@@ -38,8 +38,8 @@ public class MemcachedGenerator extends GeoGenerator {
             String.valueOf(Integer.parseInt(totalDocs) + 1 + insertOffset));
       }
 
-      if (client.get(prefix + GEO_SYSTEMFIELD_STORAGEDOCS_COUNT_INCIDENTS) == null) {
-        client.add(prefix + GEO_SYSTEMFIELD_STORAGEDOCS_COUNT_INCIDENTS, 0, "0");
+      if (client.get(prefix + GEO_SYSTEMFIELD_STORAGEDOCS_COUNT_DOCS) == null) {
+        client.add(prefix + GEO_SYSTEMFIELD_STORAGEDOCS_COUNT_DOCS, 0, "0");
       }
 
     } catch (Exception e) {
