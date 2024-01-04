@@ -112,13 +112,15 @@ Create geospatial index on the GeoJSON field.
 
 2. Load the benchmark:
 ``` shell
-bin/ycsb.sh load mongodb -P workloads/workloada -p mongodb.url="mongodb://localhost:27017/ycsb?w=1" -p mongodb.auth="true"
+bin/ycsb.sh load mongodb -P workloads/geo/workloadga -p mongodb.url="mongodb://localhost:27017/ycsb?w=1" -p mongodb.auth="true"
 ```
 
 3. Run the benchmark:
 ``` shell
-bin/ycsb.sh run mongodb -P workloads/workloada -p mongodb.url="mongodb://localhost:27017/ycsb?w=1" -p mongodb.auth="true"
+bin/ycsb.sh run mongodb -P workloads/geo/workloadga -p mongodb.url="mongodb://localhost:27017/ycsb?w=1" -p mongodb.auth="true"
 ```
+
+
 
 
 Building from source

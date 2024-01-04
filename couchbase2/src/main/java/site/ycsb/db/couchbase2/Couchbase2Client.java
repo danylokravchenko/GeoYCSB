@@ -986,7 +986,7 @@ public class Couchbase2Client extends GeoDB {
       }
 
       SpatialViewQuery q =
-          SpatialViewQuery.from("dev_spatial", "SpatialView").startRange(JsonArray.from(rp.get(0), rp.get(1)))
+          SpatialViewQuery.from("_design/dev_spatial", "SpatialView").startRange(JsonArray.from(rp.get(0), rp.get(1)))
               .endRange(JsonArray.from(rp.get(2), rp.get(3)));
       SpatialViewResult queryResult = bucket.query(q);
       return queryResult != null ? Status.OK : Status.NOT_FOUND;
@@ -1016,7 +1016,7 @@ public class Couchbase2Client extends GeoDB {
       }
 
       SpatialViewQuery q =
-          SpatialViewQuery.from("dev_spatial", "SpatialView").startRange(JsonArray.from(rp.get(0), rp.get(1)))
+          SpatialViewQuery.from("_design/dev_spatial", "SpatialView").startRange(JsonArray.from(rp.get(0), rp.get(1)))
               .endRange(JsonArray.from(rp.get(2), rp.get(3)));
       SpatialViewResult queryResult = bucket.query(q);
 
