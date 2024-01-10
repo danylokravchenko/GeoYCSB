@@ -31,7 +31,7 @@ Credits
 * Blogpost about creating input from JSON file in YCSB
 * GeoYCSB paper with spatial benchmark for MongoDB and Couchbase
 * MongoDB fork of YCSB with updates for Mongo 6
-* This repository: adjustment (modernizing) and rewriting parts of GeoYCSB. ArangoDB support
+* This repository: adjustment (modernizing) and rewriting parts of GeoYCSB. ArangoDB & PolyphenyDB support.
 
 
 Links
@@ -102,12 +102,12 @@ generating new random values on the fly. It could be configured in the workload 
 * `geo_storage_host`
 * `geo_storage_port`
 
-Database client has to be extended with geo operations. Currently, MongoDB, Couchbase, and ArangoDB are extended. 
+Database client has to be extended with geo operations. Currently, MongoDB, Couchbase, ArangoDB, and PolyphenyDB are extended. 
 Other databases could be adapted in the same way.
 
 For example, to run a geo benchmark on the MongoDB:
 
-1. Create MongoDB database and populate a collection (`usertable` was defined in YCSB, it is also kept in GeoYCSB) with GeoJSON values.
+1. Create MongoDB database and populate a collection (`usertable` was defined in YCSB, this convention is also kept in GeoYCSB) with GeoJSON values.
 Create geospatial index on the GeoJSON field.
 
 2. Load the benchmark:

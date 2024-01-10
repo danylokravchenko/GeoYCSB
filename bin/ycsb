@@ -89,6 +89,7 @@ DATABASES = {
     "mongodb"      : "site.ycsb.db.MongoDbClient",
     "nosqldb"      : "site.ycsb.db.NoSqlDbClient",
     "orientdb"     : "site.ycsb.db.OrientDBClient",
+    "polyphenydb"  : "site.ycsb.db.polyphenydb.PolyphenyDbClient",
     "postgrenosql" : "site.ycsb.postgrenosql.PostgreNoSQLDBClient",
     "rados"        : "site.ycsb.db.RadosClient",
     "redis"        : "site.ycsb.db.RedisClient",
@@ -116,26 +117,26 @@ OPTIONS = {
 
 def usage():
     output = io.BytesIO()
-    print >> output, "%s command database [options]" % sys.argv[0]
+    print("%s command database [options]" % sys.argv[0], output)
 
-    print >> output, "\nCommands:"
+    print("\nCommands:", output)
     for command in sorted(COMMANDS.keys()):
-        print >> output, "    %s %s" % (command.ljust(14),
-                                        COMMANDS[command]["description"])
+        print("    %s %s" % (command.ljust(14),
+                                        COMMANDS[command]["description"]), output)
 
-    print >> output, "\nDatabases:"
+    print("\nDatabases:", output)
     for db in sorted(DATABASES.keys()):
-        print >> output, "    %s %s" % (db.ljust(14), BASE_URL +
-                                        db.split("-")[0])
+        print("    %s %s" % (db.ljust(14), BASE_URL +
+                                        db.split("-")[0]), output)
 
-    print >> output, "\nOptions:"
+    print("\nOptions:", output)
     for option in sorted(OPTIONS.keys()):
-        print >> output, "    %s %s" % (option.ljust(14), OPTIONS[option])
+        print("    %s %s" % (option.ljust(14), OPTIONS[option]), output)
 
-    print >> output, """\nWorkload Files:
+    print("""\nWorkload Files:
     There are various predefined workloads under workloads/ directory.
     See https://github.com/brianfrankcooper/YCSB/wiki/Core-Properties
-    for the list of workload properties."""
+    for the list of workload properties.""", output)
 
     return output.getvalue()
 
@@ -176,13 +177,13 @@ def check_output(*popenargs, **kwargs):
     return output
 
 def debug(message):
-    print >> sys.stderr, "[DEBUG] ", message
+    print("[DEBUG] ", message, sys.stderr)
 
 def warn(message):
-    print >> sys.stderr, "[WARN] ", message
+    print("[WARN] ", message, sys.stderr)
 
 def error(message):
-    print >> sys.stderr, "[ERROR] ", message
+    print("[ERROR] ", message, sys.stderr)
 
 def find_jars(dir, glob='*.jar'):
     jars = []
@@ -217,9 +218,9 @@ def get_classpath_from_maven(module):
                                    "-Dmdep.outputFilterFile=true"])
         # the above outputs a "classpath=/path/tojar:/path/to/other/jar" for each module
         # the last module will be the datastore binding
-        line = [x for x in mvn_output.splitlines() if x.startswith("classpath=")][-1:]
-        return line[0][len("classpath="):]
-    except subprocess.CalledProcessError, err:
+        line = [x for x in mvn_output.splitlines() if x.startswith(b"classpath=")][-1:]
+        return line[0][len(b"classpath="):]
+    except subprocess.CalledProcessError as err:
         error("Attempting to generate a classpath from Maven failed "
               "with return code '" + str(err.returncode) + "'. The output from "
               "Maven follows, try running "
@@ -298,8 +299,8 @@ def main():
         # TODO when we have a version property, skip the glob
         cp = find_jars(os.path.join(db_dir, "target"),
                        project + "*.jar")
-        # alredy in jar:jar:jar form
-        cp.append(maven_says)
+        # already in jar:jar:jar form
+        cp.append(maven_says.decode())
     cp.insert(0, os.path.join(db_dir, "conf"))
     classpath = os.pathsep.join(cp)
     if args.classpath:
@@ -310,7 +311,7 @@ def main():
                      main_classname, "-db", db_classname] + remaining)
     if command:
         ycsb_command.append(command)
-    print >> sys.stderr, " ".join(ycsb_command)
+    print(" ".join(ycsb_command), sys.stderr)
     try:
         return subprocess.call(ycsb_command)
     except OSError as e:

@@ -125,6 +125,10 @@ public class ClientThread implements Runnable {
 
           opsdone++;
 
+          if (opsdone % 100 == 0) {
+            System.out.println("Ops done: " + opsdone);
+          }
+
           throttleNanos(startTimeNanos);
         }
       } else {

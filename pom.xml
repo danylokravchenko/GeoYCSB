@@ -188,6 +188,7 @@ LICENSE file.
     <module>mongodb</module>
     <module>nosqldb</module>
     <module>orientdb</module>
+    <module>polyphenydb</module>
     <module>postgrenosql</module>
     <module>rados</module>
     <module>redis</module>
@@ -197,7 +198,6 @@ LICENSE file.
     <module>s3</module>
     <module>seaweedfs</module>
     <module>scylla</module>
-    <module>solr7</module>
     <module>tarantool</module>
     <module>tablestore</module>
     <module>voltdb</module>

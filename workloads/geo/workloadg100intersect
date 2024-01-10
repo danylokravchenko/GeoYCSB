@@ -1,6 +1,6 @@
 
 recordcount=1000
-operationcount=100000
+operationcount=5000
 requestdistribution=uniform
 readallfields=true
 readproportion=0

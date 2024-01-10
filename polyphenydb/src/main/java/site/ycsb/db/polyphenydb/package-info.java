@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 YCSB contributors. All rights reserved.
+ * Copyright (c) 2014, Yahoo!, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License. You
@@ -16,8 +16,11 @@
  */
 
 /**
- * The YCSB binding for 
- * <a href="http://lucene.apache.org/solr/">Solr</a>.
+ * The YCSB binding for <a href="https://github.com/polypheny/Polypheny-db">PolyphenyDB</a>.
+ * For additional details on using and configuring the binding see the 
+ * accompanying <a 
+ * href="https://github.com/danylokravchenko/YCSB/blob/master/polyphenydb/README.md"
+ * >README.md</a>.
  */
-package site.ycsb.db.solr7;
+package site.ycsb.db.polyphenydb;
 

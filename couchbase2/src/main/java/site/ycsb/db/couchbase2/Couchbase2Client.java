@@ -1000,7 +1000,6 @@ public class Couchbase2Client extends GeoDB {
   @Override
   public Status geoIntersect(String table, HashMap<String, ByteIterator> result, GeoGenerator gen) {
     try {
-      String boxFieldName1 = gen.getGeoPredicate().getNestedPredicateA().getName();
       JSONObject boxFieldValue1 = gen.getGeoPredicate().getNestedPredicateA().getValueA();
       JSONObject boxFieldValue2 = gen.getGeoPredicate().getNestedPredicateB().getValueA();
       HashMap<String, Object> boxFields = new ObjectMapper().readValue(boxFieldValue1.toString(), HashMap.class);

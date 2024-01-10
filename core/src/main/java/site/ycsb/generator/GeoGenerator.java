@@ -250,11 +250,40 @@ public abstract class GeoGenerator {
     JSONObject jobj3 = new JSONObject().put("type", "MultiLineString");
     jobj3.put("coordinates", jsonArray7);
     queryPredicate3.setValueA(jobj3);
+
+    buildGeoInsertDocument();
+    DataFilter queryPredicate4 = new DataFilter();
+    queryPredicate4.setName(GEO_FIELD_DOC_GEOMETRY);
+    double[] startLatLong = {
+        -111 - rand.nextDouble(),
+        33 + rand.nextDouble()
+    };
+    double[] latLong5 = {
+        -111 - rand.nextDouble(),
+        startLatLong[1]
+    };
+    double[] latLong6 = {
+        -111 - rand.nextDouble(),
+        33 + rand.nextDouble()
+    };
+    double[] latLong7 = {
+        startLatLong[0],
+        latLong6[1]
+    };
+    JSONObject polygonObj = new JSONObject().put("type", "Polygon");
+    polygonObj.put("coordinates", new JSONArray().put(
+        new JSONArray()
+            .put(new JSONArray(startLatLong))
+            .put(new JSONArray(latLong5))
+            .put(new JSONArray(latLong6))
+            .put(new JSONArray(latLong7))
+            .put(new JSONArray(startLatLong))
+    ));
+    queryPredicate4.setValueA(polygonObj);
+    geoPredicate.setNestedPredicateD(queryPredicate4);
     geoPredicate.setNestedPredicateC(queryPredicate3);
     geoPredicate.setNestedPredicateB(queryPredicate2);
     geoPredicate.setNestedPredicateA(queryPredicate);
-
-
   }
 
 
@@ -269,7 +298,6 @@ public abstract class GeoGenerator {
     geoPredicate = new DataFilter();
     geoPredicate.setDocid(keyPrefix + docCounter);
     geoPredicate.setValue(docBody);
-
   }
 
 
@@ -359,15 +387,16 @@ public abstract class GeoGenerator {
 
 
   private void tokenizeObjects(JSONObject obj, HashMap<String, String> tokens) {
-
-    String id = GEO_FIELD_DOC_ID;
-
-    tokens.put(GEO_FIELD_DOC_ID, null);
-
-    if (obj.has(id) && !obj.isNull(id)) {
-      JSONObject idobj = obj.getJSONObject(id);
-      String key = id;
-      tokens.put(key, JSONObject.valueToString(idobj));
+    if (obj.has(GEO_FIELD_DOC_ID) && !obj.isNull(GEO_FIELD_DOC_ID)) {
+      if (obj.optJSONObject(GEO_FIELD_DOC_ID) != null) {
+        tokens.put(GEO_FIELD_DOC_ID, JSONObject.valueToString(obj.getJSONObject(GEO_FIELD_DOC_ID)));
+      } else if (obj.optInt(GEO_FIELD_DOC_ID) != 0) {
+        tokens.put(GEO_FIELD_DOC_ID, String.valueOf(obj.getInt(GEO_FIELD_DOC_ID)));
+      } else {
+        tokens.put(GEO_FIELD_DOC_ID, obj.getString(GEO_FIELD_DOC_ID));
+      }
+    } else {
+      tokens.put(GEO_FIELD_DOC_ID, null);
     }
     //1-level nested objects
     String field = GEO_FIELD_DOC_PROPERTIES;

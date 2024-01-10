@@ -176,8 +176,8 @@ public class GeoDBWrapper extends GeoDB {
       long startTimeNanos, long endTimeNanos) {
     String measurementName = op;
     if (result == null || !result.isOk()) {
-      if (this.reportLatencyForEachError ||
-          this.latencyTrackedErrors.contains(result.getName())) {
+      if (result != null && (this.reportLatencyForEachError ||
+          this.latencyTrackedErrors.contains(result.getName()))) {
         measurementName = op + "-" + result.getName();
       } else {
         measurementName = op + "-FAILED";

@@ -196,6 +196,11 @@ LICENSE file.
     </dependency>
     <dependency>
       <groupId>site.ycsb</groupId>
+      <artifactId>polyphenydb-binding</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>site.ycsb</groupId>
       <artifactId>postgrenosql-binding</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -237,11 +242,6 @@ LICENSE file.
     <dependency>
       <groupId>site.ycsb</groupId>
       <artifactId>scylla-binding</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>site.ycsb</groupId>
-      <artifactId>solr7-binding</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

@@ -454,7 +454,7 @@ public class MongoDbClient extends GeoDB {
     }
   }
 
-     /*
+  /*
        ================    GEO operations  ======================
    */
 
@@ -605,9 +605,6 @@ public class MongoDbClient extends GeoDB {
       for (Object element : coords2) {
         rp.add((Double) element);
       }
-      // Document query = new Document("properties.OBJECTID", key);
-
-      //FindIterable<Document> findIterable = collection.find(query);
 
       FindIterable<Document> findIterable =
           collection.find(Filters.geoWithinBox(boxFieldName1, rp.get(0), rp.get(1), rp.get(2), rp.get(3)));
