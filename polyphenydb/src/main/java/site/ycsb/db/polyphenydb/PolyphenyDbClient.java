@@ -115,7 +115,7 @@ public class PolyphenyDbClient extends GeoDB {
         synchronized (INIT_COORDINATOR) {
           mongoConnection = new MongoConnection(host, port, protocol, databaseName, username, password);
           rand = new Random();
-//          importData();
+          importData();
         }
       } catch (Exception ex) {
         throw new DBException("Could not connect to PolyphenyDB.", ex);
@@ -132,7 +132,7 @@ public class PolyphenyDbClient extends GeoDB {
     List<String> parsedResults = new ArrayList<>();
 
     try (BufferedReader br = new BufferedReader(
-        new FileReader("/Users/danylokravchenko/Projects/Graffiti_Abatement_IncidentsLine.json"))) {
+        new FileReader("Graffiti_Abatement_IncidentsLine.json"))) {
       String line;
       while ((line = br.readLine()) != null) {
         // process the line.

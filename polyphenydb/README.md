@@ -64,15 +64,15 @@ Download the YCSB zip file and compile:
 
 ### 4. Run YCSB
 
-Now you are ready to run! Use the synchronous driver from MongoDB Inc. to load the data: 
+Now you are ready to run! By default, on the load stage the data will be imported. Use the PolyphenyDB driver to load the data: 
 
     ./bin/ycsb load polyphenydb -s -P workloads/workloada > outputLoad.txt
 
-Then, run the workload:
+Then, disable the data import in `PolyphenyDbClient:118`, rebuild the client and run the workload:
 
     ./bin/ycsb run polyphenydb -s -P workloads/workloada > outputRun.txt
     
-See the next section for the list of configuration parameters for MongoDB.
+See the next section for the list of configuration parameters for PolyphenyDB.
 
 ## PolyphenyDB Configuration Parameters
 
